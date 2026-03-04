@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', sans-serif;
+    --font-serif: 'Lora', serif;
+
+    /* Serene, minimal, earthy color palette */
+    --background: 45 29% 97%;      /* Warm Off-White / Cream */
+    --foreground: 34 8% 16%;       /* Deep Charcoal / Soft Black */
+    
+    --card: 0 0% 100%;             /* Pure White */
+    --card-foreground: 34 8% 16%;
+    
+    --popover: 0 0% 100%;
+    --popover-foreground: 34 8% 16%;
+    
+    --primary: 132 14% 56%;        /* Muted Sage Green */
+    --primary-foreground: 0 0% 100%;
+    
+    --secondary: 45 20% 90%;       /* Sand / Light Beige */
+    --secondary-foreground: 34 8% 16%;
+    
+    --muted: 45 15% 92%;           /* Subtle Stone */
+    --muted-foreground: 34 5% 45%; /* Medium Grey */
+    
+    --accent: 30 20% 94%;          /* Warm Light Grey */
+    --accent-foreground: 34 8% 16%;
+    
+    --destructive: 0 50% 60%;      /* Softened Red */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 45 15% 88%;          /* Soft border matching background tone */
+    --input: 45 15% 88%;
+    --ring: 132 14% 56%;           /* Focus ring uses Sage Green */
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Muted, dark contemplative theme */
+    --background: 220 10% 12%;     /* Deep Slate */
+    --foreground: 45 20% 90%;      /* Soft Sand Text */
+    
+    --card: 220 12% 16%;           /* Lighter Slate */
+    --card-foreground: 45 20% 90%;
+    
+    --popover: 220 12% 16%;
+    --popover-foreground: 45 20% 90%;
+    
+    --primary: 132 14% 56%;        /* Sage green retains identity */
+    --primary-foreground: 220 10% 12%;
+    
+    --secondary: 220 10% 20%;      /* Elevated dark */
+    --secondary-foreground: 45 20% 90%;
+    
+    --muted: 220 10% 20%;
+    --muted-foreground: 220 10% 65%;
+    
+    --accent: 220 10% 20%;
+    --accent-foreground: 45 20% 90%;
+    
+    --destructive: 0 40% 50%;
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 220 10% 24%;
+    --input: 220 10% 24%;
+    --ring: 132 14% 56%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-primary/20;
+    font-family: var(--font-sans);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif);
+    @apply tracking-tight font-medium;
+  }
+}
+
+/* Custom Utilities for smooth visual depth */
+@layer utilities {
+  .glass-panel {
+    @apply bg-card/80 backdrop-blur-md border border-border/50 shadow-sm;
+  }
+  .meditation-shadow {
+    box-shadow: 0 10px 40px -10px rgba(0,0,0,0.03), 0 4px 10px -4px rgba(0,0,0,0.02);
+  }
+  .input-focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:border-primary/60 transition-all duration-300;
+  }
+}
