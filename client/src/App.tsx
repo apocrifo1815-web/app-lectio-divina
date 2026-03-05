@@ -127,7 +127,7 @@ export default function App() {
             currentStep={currentStep}
             totalSteps={TOTAL_STEPS}
             onNext={nextStep}
-            onPrev={prevStep}
+           onBack={prevStep}
           />
         </div>
       </footer>
