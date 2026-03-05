@@ -41,7 +41,7 @@ async function fetchDailyGospel() {
       liturgicalDay: liturgicalDay,
       text: bibleData.text || "Loading daily word...",
     };
-  } catch (error) {
+} catch (error) {
       console.error("Fetch Error:", error);
       return {
         reference: "Luke 16:19-31",
@@ -50,12 +50,6 @@ async function fetchDailyGospel() {
       };
     }
   }
-  }
-} // Esta terceira chave é necessária para fechar a função fetchDailyGospel
-  const [currentStep, setCurrentStep] = useState(0)
-  const [isLoading, setIsLoading] = useState(true)
-  const [dailyGospel, setDailyGospel] = useState<{
-    reference: string
     text: string
     liturgicalDay: string
   } | null>(null)
