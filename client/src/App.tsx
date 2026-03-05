@@ -1,5 +1,5 @@
 "use client"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { ProgressBar } from "@/components/progress-bar"
 import { StepReading } from "@/components/step-reading"
 import { StepMeditation } from "@/components/step-meditation"
@@ -56,20 +56,21 @@ export default function App() {
   const [meditationText, setMeditationText] = useState("")
   const [prayerText, setPrayerText] = useState("")
 
-  useEffect(() => {
+  const loadGospel = useCallback(async () => {
     setIsLoading(true)
-    fetchDailyGospel()
-      .then((data) => {
-        setDailyGospel(data)
-      })
-      .catch((err) => {
-        console.error("Gospel fetch component error:", err);
-        setDailyGospel(null)
-      })
-      .finally(() => {
-        setIsLoading(false)
-      })
+    try {
+      const data = await fetchDailyGospel()
+      setDailyGospel(data)
+    } catch (err) {
+      console.error("Component error:", err)
+    } finally {
+      setIsLoading(false)
+    }
   }, [])
+
+  useEffect(() => {
+    loadGospel()
+  }, [loadGospel])
 
   const nextStep = () => {
     if (currentStep < TOTAL_STEPS - 1) {
@@ -84,5 +85,52 @@ export default function App() {
   }
 
   return (
-    <div className=\"flex min-h-screen flex-col bg-background text-foreground\">
-      <header className=\"border-b border-border bg-background/80 px-4 py-6 backdrop-blur-md md:px-6\">\n        <h1 className=\"text-center font-serif text-2xl font-bold tracking-tight md:text-3xl text-primary\">\n          Lectio Divina\n        </h1>\n        <div className=\"mx-auto mt-2 h-px w-8 bg-accent/50\" />\n      </header>\n\n      <div className=\"pb-6 pt-4 md:pb-8 md:pt-6\">\n        <ProgressBar currentStep={currentStep} />\n      </div>\n\n      <main className=\"mx-auto w-full max-w-3xl flex-1 px-4 pb-8 md:px-6\">\n        <div className=\"transition-opacity duration-500\">\n          {currentStep === 0 && (\n            <StepReading dailyGospel={dailyGospel} isLoading={isLoading} />\n          )}\n          {currentStep === 1 && (\n            <StepMeditation\n              meditationText={meditationText}\n              onMeditationChange={setMeditationText}\n            />\n          )}\n          {currentStep === 2 && (\n            <StepPrayer prayerText={prayerText} onPrayerChange={setPrayerText} />\n          )}\n          {currentStep === 3 && (\n            <StepContemplation\n              dailyGospel={dailyGospel}\n              meditationText={meditationText}\n              prayerText={prayerText}\n            />\n          )}\n        </div>\n      </main>\n\n      <footer className=\"sticky bottom-0 border-t border-border bg-background/80 backdrop-blur-md\">\n        <div className=\"mx-auto max-w-3xl px-4 py-4 md:px-6\">\n          <NavigationButtons\n            currentStep={currentStep}\n            totalSteps={TOTAL_STEPS}\n            onNext={nextStep}\n            onPrev={prevStep}\n          />\n        </div>\n      </footer>\n    </div>\n  )\n}
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
+      <header className="border-b border-border bg-background/80 px-4 py-6 backdrop-blur-md md:px-6">
+        <h1 className="text-center font-serif text-2xl font-bold tracking-tight md:text-3xl text-primary">
+          Lectio Divina
+        </h1>
+        <div className="mx-auto mt-2 h-px w-8 bg-accent/50" />
+      </header>
+
+      <div className="pb-6 pt-4 md:pb-8 md:pt-6">
+        <ProgressBar currentStep={currentStep} />
+      </div>
+
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 pb-8 md:px-6">
+        <div className="transition-opacity duration-500">
+          {currentStep === 0 && (
+            <StepReading dailyGospel={dailyGospel} isLoading={isLoading} />
+          )}
+          {currentStep === 1 && (
+            <StepMeditation
+              meditationText={meditationText}
+              onMeditationChange={setMeditationText}
+            />
+          )}
+          {currentStep === 2 && (
+            <StepPrayer prayerText={prayerText} onPrayerChange={setPrayerText} />
+          )}
+          {currentStep === 3 && (
+            <StepContemplation
+              dailyGospel={dailyGospel}
+              meditationText={meditationText}
+              prayerText={prayerText}
+            />
+          )}
+        </div>
+      </main>
+
+      <footer className="sticky bottom-0 border-t border-border bg-background/80 backdrop-blur-md">
+        <div className="mx-auto max-w-3xl px-4 py-4 md:px-6">
+          <NavigationButtons
+            currentStep={currentStep}
+            totalSteps={TOTAL_STEPS}
+            onNext={nextStep}
+            onPrev={prevStep}
+          />
+        </div>
+      </footer>
+    </div>
+  )
+}
