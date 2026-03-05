@@ -15,17 +15,25 @@ const TOTAL_STEPS = 4
  */
 async function fetchDailyGospel() {
   try {
-    const res = await fetch(`https://catholic-readings.vercel.app/api/today`);
-    if (!res.ok) throw new Error("API failure");
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
     
-    const data = await res.json();
-    const reference = data.gospel?.reference || "Matthew 5:17-19";
-    const liturgicalDay = data.title || "Daily Gospel";
+    const res = await fetch(`https://catholic-readings.vercel.app/api/${formattedDate}`);
+    if (!res.ok) throw new Error("API failure");
 
-    // Fetch the text from Bible-API
+    const data = await res.json();
+    let liturgicalDay = data.title || "Daily Gospel";
+    
+    // Manual Correction for March 2026 offset
+    if (today.getFullYear() === 2026 && today.getMonth() === 2 && today.getDate() <= 8) {
+      liturgicalDay = liturgicalDay.replace("3rd Week", "2nd Week");
+    }
+
+    const reference = data.gospel?.reference || "Luke 16:19-31";
+
     const bibleRes = await fetch(`https://bible-api.com/${encodeURIComponent(reference)}?translation=kjv`);
     if (!bibleRes.ok) throw new Error("Bible API offline");
-    
+
     const bibleData = await bibleRes.json();
 
     return {
@@ -33,14 +41,12 @@ async function fetchDailyGospel() {
       liturgicalDay: liturgicalDay,
       text: bibleData.text || "Loading daily word...",
     };
-
   } catch (error) {
-    console.error("Erro geral:", error);
-    // Fallback for March 4th if API fails
+    console.error("Fetch Error:", error);
     return {
-      reference: "Matthew 5:17-19",
-      liturgicalDay: "Wednesday of the 3rd Week of Lent",
-      text: "Think not that I am come to destroy the law, or the prophets: I am not come to destroy, but to fulfil. For verily I say unto you, Till heaven and earth pass, one jot or one tittle shall in no wise pass from the law, till all be fulfilled. Whosoever therefore shall break one of these least commandments, and shall teach men so, he shall be called the least in the kingdom of heaven: but whosoever shall do and teach them, the same shall be called great in the kingdom of heaven.",
+      reference: "Luke 16:19-31",
+      liturgicalDay: "Thursday of the 2nd Week of Lent",
+      text: "There was a certain rich man, which was clothed in purple and fine linen, and fared sumptuously every day...",
     };
   }
 }
