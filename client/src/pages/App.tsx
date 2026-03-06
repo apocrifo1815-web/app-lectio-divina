@@ -2,55 +2,68 @@ import React, { useState } from 'react';
 import lectioData from "./dados-leitura.json";
 
 function App() {
-  // Gerenciar qual data estamos vendo (começa com hoje)
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [activeTab, setActiveTab] = useState('lectio'); // Controla a aba atual
 
   const changeDay = (days: number) => {
     const newDate = new Date(currentDate);
     newDate.setDate(currentDate.getDate() + days);
     setCurrentDate(newDate);
+    setActiveTab('lectio'); // Reseta para a primeira aba ao mudar de dia
   };
 
-  const formatKey = (date: Date) => {
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${m}-${d}`;
-  };
+  const key = `${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(currentDate.getDate()).padStart(2, '0')}`;
+  const data = (lectioData as any)[key];
 
-  const key = formatKey(currentDate);
-  const altKey = `${key.split('-')[1]}-${key.split('-')[0]}`;
-  const data = (lectioData as any)[key] || (lectioData as any)[altKey];
+  const tabStyle = (id: string) => ({
+    padding: '10px 15px',
+    cursor: 'pointer',
+    backgroundColor: activeTab === id ? '#d4a373' : '#e9edc9',
+    color: activeTab === id ? 'white' : '#5d4037',
+    border: 'none',
+    borderRadius: '8px 8px 0 0',
+    fontWeight: 'bold' as const,
+    flex: 1,
+    margin: '0 2px'
+  });
 
   return (
-    <div style={{ backgroundColor: '#f4ece1', minHeight: '100vh', padding: '20px', fontFamily: 'serif', color: '#2c3e50' }}>
-      <div style={{ maxWidth: '700px', margin: '0 auto', textAlign: 'center' }}>
+    <div style={{ backgroundColor: '#fefae0', minHeight: '100vh', padding: '20px', fontFamily: 'serif' }}>
+      <div style={{ maxWidth: '600px', margin: '0 auto' }}>
         
-        <h1 style={{ fontSize: '2.5rem', borderBottom: '2px solid #d4a373', paddingBottom: '10px' }}>Lectio Divina</h1>
-
-        {/* BOTÕES DE NAVEGAÇÃO */}
-        <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <button onClick={() => changeDay(-1)} style={btnStyle}>← Anterior</button>
-          <span style={{ fontWeight: 'bold', fontSize: '1.2rem' }}>{currentDate.toLocaleDateString('pt-BR')}</span>
-          <button onClick={() => changeDay(1)} style={btnStyle}>Próximo →</button>
+        {/* Navegação de Dias */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <button onClick={() => changeDay(-1)} style={navBtn}>← Previous Day</button>
+          <h2 style={{ margin: 0, fontSize: '1.2rem' }}>{currentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}</h2>
+          <button onClick={() => changeDay(1)} style={navBtn}>Next Day →</button>
         </div>
 
         {data ? (
-          <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '15px', boxShadow: '0 4px 15px rgba(0,0,0,0.1)', textAlign: 'left' }}>
-            <h2 style={{ color: '#a67c52', fontSize: '1.8rem' }}>{data.day}</h2>
-            <p style={{ fontSize: '1.2rem' }}><strong>📖 Referência:</strong> {data.reference}</p>
-            <hr style={{ opacity: 0.3 }} />
-            <div style={{ fontSize: '1.4rem', lineHeight: '1.8', marginTop: '20px', whiteSpace: 'pre-wrap' }}>
-              {data.text}
+          <div>
+            <h1 style={{ textAlign: 'center', color: '#5d4037' }}>{data.day}</h1>
+            <p style={{ textAlign: 'center', fontWeight: 'bold' }}>{data.reference}</p>
+
+            {/* ABAS DA LECTIO DIVINA */}
+            <div style={{ display: 'flex', marginTop: '20px' }}>
+              <button style={tabStyle('lectio')} onClick={() => setActiveTab('lectio')}>LECTIO</button>
+              <button style={tabStyle('meditatio')} onClick={() => setActiveTab('meditatio')}>MEDITATIO</button>
+              <button style={tabStyle('oratio')} onClick={() => setActiveTab('oratio')}>ORATIO</button>
+              <button style={tabStyle('contemplatio')} onClick={() => setActiveTab('contemplatio')}>CONTEMPLATIO</button>
             </div>
-            <div style={{ marginTop: '30px', padding: '20px', backgroundColor: '#fff9f0', borderLeft: '6px solid #d4a373', borderRadius: '4px' }}>
-              <h3 style={{ marginTop: 0, color: '#d4a373' }}>💡 Meditação</h3>
-              <p style={{ fontSize: '1.3rem', fontStyle: 'italic' }}>{data.meditation}</p>
+
+            {/* CONTEÚDO DA ABA */}
+            <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '0 0 15px 15px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', minHeight: '300px' }}>
+              <h3 style={{ color: '#d4a373', marginTop: 0 }}>
+                {activeTab.toUpperCase()}
+              </h3>
+              <p style={{ fontSize: '1.25rem', lineHeight: '1.6', color: '#2c3e50', whiteSpace: 'pre-wrap' }}>
+                {(data as any)[activeTab]}
+              </p>
             </div>
           </div>
         ) : (
-          <div style={{ padding: '50px', backgroundColor: 'rgba(255,255,255,0.5)', borderRadius: '15px' }}>
-            <p style={{ fontSize: '1.5rem' }}>Nenhuma leitura cadastrada para {key}.</p>
-            <p>Use os botões acima para navegar.</p>
+          <div style={{ textAlign: 'center', marginTop: '50px' }}>
+            <p>No content found for this date ({key}).</p>
           </div>
         )}
       </div>
@@ -58,15 +71,6 @@ function App() {
   );
 }
 
-const btnStyle = {
-  padding: '10px 20px',
-  fontSize: '1rem',
-  backgroundColor: '#d4a373',
-  color: 'white',
-  border: 'none',
-  borderRadius: '20px',
-  cursor: 'pointer',
-  fontWeight: 'bold' as const
-};
+const navBtn = { padding: '8px 12px', borderRadius: '5px', border: '1px solid #d4a373', backgroundColor: 'transparent', cursor: 'pointer' };
 
 export default App;
