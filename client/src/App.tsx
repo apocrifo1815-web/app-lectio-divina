@@ -8,7 +8,7 @@ import { StepContemplation } from "@/components/step-contemplation"
 import { NavigationButtons } from "@/components/navigation-buttons"
 
 // Importando o seu arquivo local de leituras
-import lectioData from "../app/lectio.json"
+import lectioData from "./lectio.json"
 
 const TOTAL_STEPS = 4
 
