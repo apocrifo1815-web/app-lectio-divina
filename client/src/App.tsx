@@ -7,40 +7,41 @@ import { StepPrayer } from "@/components/step-prayer"
 import { StepContemplation } from "@/components/step-contemplation"
 import { NavigationButtons } from "@/components/navigation-buttons"
 
+// Importando o seu arquivo local de leituras
+import lectioData from "../app/lectio.json"
+
 const TOTAL_STEPS = 4
 
-async function fetchDailyGospel() {
+function getLocalGospel() {
   try {
     const today = new Date();
-    const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
-    const formattedDate = `${year}-${month}-${day}`;
-    
-    const res = await fetch(`https://catholic-readings.vercel.app/api/${formattedDate}`);
-    if (!res.ok) throw new Error("API failure");
-    const data = await res.json();
-    
-    let liturgicalDay = data.title || "Daily Gospel";
-    const reference = data.gospel?.reference || "Matthew 5:20-26";
-    
-    const bibleRes = await fetch(`https://bible-api.com/${encodeURIComponent(reference)}?translation=kjv`);
-    if (!bibleRes.ok) throw new Error("Bible API offline");
-    const bibleData = await bibleRes.json();
+    const dateKey = `${month}-${day}`; // Formato "03-07"
 
-    // Se a API retornar texto, usamos ela. Se não, usamos o texto manual abaixo.
+    // @ts-ignore
+    const data = lectioData[dateKey];
+
+    if (data) {
+      return {
+        reference: data.reference,
+        liturgicalDay: data.day || "Daily Gospel",
+        text: data.text,
+      };
+    }
+
+    // Caso não encontre a data no JSON, mostra um aviso amigável
     return {
-      reference: bibleData.reference || reference,
-      liturgicalDay: liturgicalDay,
-      text: bibleData.text || "Loading...",
+      reference: "Check back tomorrow",
+      liturgicalDay: "Liturgical Calendar",
+      text: "Peace be with you. The readings for this specific date are being updated. Please check the Saint of the Day in the meantime.",
     };
   } catch (error) {
-    console.error("Fetch Error:", error);
-    // TEXTO INTEGRAL DE HOJE (Sexta-feira) para caso de falha na API:
+    console.error("Error loading local lectio:", error);
     return {
-      reference: "Matthew 5:20-26",
-      liturgicalDay: "Friday of the 1st Week of Lent",
-      text: "For I say unto you, That except your righteousness shall exceed the righteousness of the scribes and Pharisees, ye shall in no case enter into the kingdom of heaven. Ye have heard that it was said by them of old time, Thou shalt not kill; and whosoever shall kill shall be in danger of the judgment: But I say unto you, That whosoever is angry with his brother without a cause shall be in danger of the judgment: and whosoever shall say to his brother, Raca, shall be in danger of the council: but whosoever shall say, Thou fool, shall be in danger of hell fire. Therefore if thou bring thy gift to the altar, and there rememberest that thy brother hath ought against thee; Leave there thy gift before the altar, and go thy way; first be reconciled to thy brother, and then come and offer thy gift. Agree with thine adversary quickly, whiles thou art in the way with him; lest at any time the adversary deliver thee to the judge, and the judge deliver thee to the officer, and thou be cast into prison. Verily I say unto thee, Thou shalt by no means come out thence, till thou hast paid the uttermost farthing.",
+      reference: "Error",
+      liturgicalDay: "System Offline",
+      text: "Please check your lectio.json file structure.",
     };
   }
 }
@@ -57,16 +58,11 @@ export default function App() {
   const [meditationText, setMeditationText] = useState("")
   const [prayerText, setPrayerText] = useState("")
 
-  const loadGospel = useCallback(async () => {
+  const loadGospel = useCallback(() => {
     setIsLoading(true)
-    try {
-      const data = await fetchDailyGospel()
-      setDailyGospel(data)
-    } catch (err) {
-      console.error("Component error:", err)
-    } finally {
-      setIsLoading(false)
-    }
+    const data = getLocalGospel()
+    setDailyGospel(data)
+    setIsLoading(false)
   }, [])
 
   useEffect(() => {
