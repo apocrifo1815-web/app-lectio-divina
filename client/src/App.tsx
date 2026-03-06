@@ -12,7 +12,11 @@ const TOTAL_STEPS = 4
 async function fetchDailyGospel() {
   try {
     const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0];
+    // Ajuste para pegar a data local correta
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    const formattedDate = `${year}-${month}-${day}`;
     
     const res = await fetch(`https://catholic-readings.vercel.app/api/${formattedDate}`);
     if (!res.ok) throw new Error("API failure");
@@ -20,11 +24,7 @@ async function fetchDailyGospel() {
     
     let liturgicalDay = data.title || "Daily Gospel";
     
-    if (today.getFullYear() === 2026 && today.getMonth() === 2 && today.getDate() <= 8) {
-      liturgicalDay = liturgicalDay.replace("3rd Week", "2nd Week");
-    }
-
-    const reference = data.gospel?.reference || "Luke 16:19-31";
+    const reference = data.gospel?.reference || "Matthew 5:20-26";
     const bibleRes = await fetch(`https://bible-api.com/${encodeURIComponent(reference)}?translation=kjv`);
     if (!bibleRes.ok) throw new Error("Bible API offline");
     const bibleData = await bibleRes.json();
@@ -37,9 +37,9 @@ async function fetchDailyGospel() {
   } catch (error) {
     console.error("Fetch Error:", error);
     return {
-      reference: "Luke 16:19-31",
-      liturgicalDay: "Thursday of the 2nd Week of Lent",
-      text: "There was a certain rich man, which was clothed in purple and fine linen, and fared sumptuously every day: And there was a certain beggar named Lazarus, which was laid at his gate, full of sores, And desiring to be fed with the crumbs which fell from the rich man's table: moreover the dogs came and licked his sores. And it came to pass, that the beggar died, and was carried by the angels into Abraham's bosom: the rich man also died, and was buried; And in hell he lift up his eyes, being in torments, and seeth Abraham afar off, and Lazarus in his bosom.",
+      reference: "Matthew 5:20-26",
+      liturgicalDay: "Friday of the 1st Week of Lent",
+      text: "For I say unto you, That except your righteousness shall exceed the righteousness of the scribes and Pharisees, ye shall in no case enter into the kingdom of heaven...",
     };
   }
 }
